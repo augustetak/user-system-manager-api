@@ -1,0 +1,25 @@
+version: "3.8"
+services:
+  api_service:
+    build: .
+    restart: always
+#    ports:
+#      - 8088:8080
+    environment:
+       SPRING_DATA_MONGODB_.HOST: mongo-db
+    depends_on:
+      - mongo-db
+  mongo:
+    image: mongo
+    container_name: mongo-db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_DATABASE: user-system-manager-db
+      MONGO_INITDB_ROOT_PASSWORD: Password123
+    ports:
+      - '27018:27017'
+    expose:
+      - '27017'
+    volumes:
+      - ./data:/data/db
+    restart: on-failure

@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<included>
+	<Properties>
+		<!-- <Property name="LAYOUT">%date{DEFAULT} [%5p] Thread: [%t] %C{-3} Method: %M Message: %message %n</Property>-->
+		<Property name="FILE_PATH">${sys:LOG_FILE_PATH}/services.log</Property>
+		<Property name="DAILY_PATH">${sys:LOG_FILE_PATH}/bkps/Services-%d{MM-dd-yyyy}-%i.log.gz</Property>
+	</Properties>
+
+	<Appenders>
+
+		<Console name="CONSOLE_LOG" target="SYSTEM_OUT">
+			<PatternLayout>
+				<Pattern>%X{session} %d{dd-MM-yyyy HH:mm:ss:SSS} %-5p %-35c{1.} - %m%n</Pattern>
+			</PatternLayout>
+		</Console>
+
+		<RollingFile name="FILE_LOG" append="false">
+			<FileName name="fileName">${FILE_PATH}</FileName>
+			<FilePattern name="filePattern">${DAILY_PATH}</FilePattern>
+
+			<PatternLayout>
+				<Pattern>${LAYOUT}</Pattern>
+			</PatternLayout>
+			<Policies>
+				<TimeBasedTriggeringPolicy />
+				<SizeBasedTriggeringPolicy size="50 MB" />
+			</Policies>
+			<DefaultRolloverStrategy>
+				<Delete basePath="${FILE_PATH}" maxDepth="1">
+					<IfFileName glob="${FILE_PATH}*.log" />
+					<IfLastModified age="60d" />
+				</Delete>
+			</DefaultRolloverStrategy>
+		</RollingFile>
+
+	</Appenders>
+
+	<Loggers>
+		<Logger level="DEBUG" name="com.airfrance" additivity="false">
+			<AppenderRef ref="CONSOLE_LOG"></AppenderRef>
+			<AppenderRef ref="FILE_LOG"></AppenderRef>
+		</Logger>
+
+		<Root level="DEBUG">
+			<AppenderRef ref="CONSOLE_LOG"></AppenderRef>
+			<AppenderRef ref="FILE_LOG"></AppenderRef>
+		</Root>
+	</Loggers>
+</included>
