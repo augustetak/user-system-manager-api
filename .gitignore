@@ -5,6 +5,7 @@ target/
 !**/src/test/**/target/
 appdeployer/
 user-manager-rest.iml
+data/
 ### STS ###
 .apt_generated
 .classpath
