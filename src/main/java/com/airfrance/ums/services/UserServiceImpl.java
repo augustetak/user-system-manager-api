@@ -44,6 +44,27 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDto checkFields(UserDto userDto, boolean updateOperation) throws BadRequestException {
         UserResponseDto userResponseDto = new UserResponseDto();
+
+        if (Objects.isNull(userDto)){
+
+            userResponseDto.setCode(UserResultCode.INVALID_REQUEST_FORMAT.getStatusCode());
+            userResponseDto.setContent(UserResultCode.INVALID_REQUEST_FORMAT.getStatusDescription());
+            logger.error("{} {}: no information about user",Constants.LOG_MESSAGE_CANNOT ,updateOperation ? "update":"create");
+            return userResponseDto;
+        }
+        Optional<User> byId = Optional.ofNullable(null);
+        UserDto userDtoToUpdate= null;
+        if (updateOperation && userRepository.existsById(userDto.getUserId())){
+            byId = userRepository.findById(userDto.getUserId());
+            userDtoToUpdate = UserDto.builder().userId(userDto.getUserId())
+                    .birthday(Objects.isNull(userDto.getBirthday()) ? byId.get().getBirthday():userDto.getBirthday())
+                    .name(Objects.isNull(userDto.getName()) ? byId.get().getName():userDto.getName())
+                    .surname(Objects.isNull(userDto.getSurname()) ? byId.get().getSurname():userDto.getSurname())
+                    .country(Objects.isNull(userDto.getCountry()) ? byId.get().getCountry():userDto.getCountry())
+                    .email(Objects.isNull(userDto.getEmail()) ? byId.get().getEmail():userDto.getEmail())
+                    .build();
+            userDto = userDtoToUpdate;
+        }
         if (updateOperation && !userRepository.existsById(userDto.getUserId())) {
             userResponseDto.setCode(UserResultCode.REQUEST_NOT_FOUND.getStatusCode());
             userResponseDto.setContent(UserResultCode.REQUEST_NOT_FOUND.getStatusDescription());
@@ -87,7 +108,7 @@ public class UserServiceImpl implements UserService {
             return userResponseDto;
         }
 
-        if( updateOperation && checkMailExist && !userDto.getEmail().equalsIgnoreCase(userRepository.findById(userDto.getUserId()).get().getEmail()) ){
+        if( updateOperation && checkMailExist && !userDto.getEmail().equalsIgnoreCase(byId.get().getEmail()) ){
             userResponseDto.setCode(UserResultCode.EMAIL_ALREADY_EXIST_ERROR.getStatusCode());
             userResponseDto.setContent(UserResultCode.EMAIL_ALREADY_EXIST_ERROR.getStatusDescription());
             logger.warn("{} update User with  email: {} already exist",Constants.LOG_MESSAGE_CANNOT,userDto.getEmail() );

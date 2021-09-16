@@ -7,6 +7,7 @@ import com.airfrance.ums.exception.BadRequestException;
 import com.airfrance.ums.services.UserService;
 
 
+import io.swagger.annotations.Api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,13 +56,18 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<User> getUser(@PathVariable String userId){
+        long start  = new Date().getTime();
         Optional<User> user = userService.getUserById(userId);
-        return user.map( usr -> new ResponseEntity<User>(usr,HttpStatus.OK)).orElseGet( () -> ResponseEntity.notFound().build());
+        ResponseEntity<User> userResponseEntity = user.map(usr -> new ResponseEntity<User>(usr, HttpStatus.OK)).orElseGet(() -> ResponseEntity.notFound().build());
+        logger.info("End get User  computation time: {}ms",new Date().getTime() - start);
+        return userResponseEntity;
     }
 
     @GetMapping("/users")
     public List<User> getAllUser(){
+        long start  = new Date().getTime();
         List<User> allUser = userService.getAllUser();
-        return userService.getAllUser();
+        logger.info("End get all user  computation time: {}ms",new Date().getTime() - start);
+        return allUser;
     }
 }
