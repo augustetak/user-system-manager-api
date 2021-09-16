@@ -22,13 +22,10 @@ docker-compose -f docker-compose.mongo.yml up -d
   
 to build and run the api image and mongo image.
 
-TEST API:
-  
-get all users:
-  
-http://localhost:8080/api/v1/users
-  
-or
-  
-curl -X GET \
-  http://localhost:8080/api/v1/users
+Swagger
+
+To see all rest method interfaces and test them:
+
+http://localhost:8080/swagger-ui/#/user-controller
+
+
