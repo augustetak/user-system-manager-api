@@ -1,0 +1,65 @@
+version: "${DOCKER_COMPOSE_VERSION}"
+services:
+
+  user-service_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: $APP_NAME
+    ports:
+      - $SERVER_HOST_PORT:8080
+    environment:
+       SERVER_PORT: $SERVER_PORT
+       SPRING_PROFILES_ACTIVE: $ACTIVE_PROFILE
+       SPRING_APPLICATION_NAME: $APP_NAME
+       SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE: $MONGO_DB_AUTHENTICATION_DATABASE
+       SPRING_DATA_MONGODB_AUTO_INDEX_CREATION: $MONGO_AUTO_INDEX_CREATION
+       SPRING_DATA_MONGODB_HOST: $MONGO_CONTAINER_NAME
+       SPRING_DATA_MONGODB_PORT: $MONGO_HOST_PORT
+       SPRING_DATA_MONGODB_USERNAME: $MONGO_DB_USERNAME
+       SPRING_DATA_MONGODB_PASSWORD: $MONGO_DB_PASSWORD
+       SPRING_DATA_MONGODB_DATABASE: $MONGO_DB
+    restart: always
+    depends_on:
+      - $MONGO_CONTAINER_NAME
+
+#  mongo-express:
+#    image: $MONGO_EXPRESS_IMAGE:$MONGO_EXPRESS_TAG
+#    container_name: $MONGO_EXPRESS_CONTAINER_NAME
+#    environment:
+       #ME_CONFIG_EDITORTHEME: $ME_CONFIG_EDITOR_THEME
+       #ME_CONFIG_MONGODB_SERVER: $MONGO_CONTAINER_NAME
+       #ME_CONFIG_MONGODB_PORT: $MONGO_HOST_PORT
+       #ME_CONFIG_MONGODB_ENABLE_ADMIN: $MONGO_EXPRESS_ENABLE_ADMIN
+       #ME_CONFIG_MONGODB_AUTH_DATABASE: $MONGO_DB_AUTHENTICATION_DATABASE
+#       ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_ROOT_USERNAME}
+#       ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_ROOT_PASSWORD}
+       #ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_EXPRESS_LOGIN}
+       #ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_EXPRESS_PASSWORD}
+#       ME_CONFIG_MONGODB_URL: "mongodb://${MONGO_CONTAINER_NAME}:${MONGO_EXPRESS_HOST_PORT}"
+#    depends_on:
+#      - $MONGO_CONTAINER_NAME
+#    restart: always
+#    ports:
+#      - $MONGO_EXPRESS_HOST_PORT:8081
+  mongo-db:
+    image: $MONGO_IMAGE
+    container_name: $MONGO_CONTAINER_NAME
+    restart: always
+    ports:
+      - $MONGO_HOST_PORT:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: $MONGO_ROOT_USERNAME
+      MONGO_INITDB_ROOT_PASSWORD: $MONGO_ROOT_PASSWORD
+      MONGO_INITDB_DATABASE: $MONGO_DB_AUTHENTICATION_DATABASE
+    volumes:
+      - ./../mongodb-vol:/data/db
+      - ./mongo-init/init-db.js:/docker-entrypoint-initdb.d/init-db.js:ro
+    healthcheck:
+      test: "echo 'db.runCommand(\"ping\").ok'"
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  mongodb-vol:
