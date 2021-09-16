@@ -13,8 +13,8 @@ Mongodb:
 
 MONGO_CONTAINER_NAME=<<Container's name for mongodd>>
 
-MONGO_ROOT_USERNAME=<<Username>>
-MONGO_ROOT_PASSWORD=<<Password>>
+MONGO_ROOT_USERNAME=<<Your root username>>
+MONGO_ROOT_PASSWORD=<<Your password >>
 
 Once those parameters are setting run this command :
   
