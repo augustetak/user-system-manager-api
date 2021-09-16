@@ -1,0 +1,46 @@
+version: "${DOCKER_COMPOSE_VERSION}"
+services:
+
+  user-service_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: $APP_NAME
+    ports:
+      - $SERVER_HOST_PORT:8080
+    environment:
+       SERVER_PORT: $SERVER_PORT
+       SPRING_PROFILES_ACTIVE: $ACTIVE_PROFILE
+       SPRING_APPLICATION_NAME: $APP_NAME
+       SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE: $MONGO_DB_AUTHENTICATION_DATABASE
+       SPRING_DATA_MONGODB_AUTO_INDEX_CREATION: $MONGO_AUTO_INDEX_CREATION
+       SPRING_DATA_MONGODB_HOST: $MONGO_CONTAINER_NAME
+       SPRING_DATA_MONGODB_PORT: $MONGO_HOST_PORT
+       SPRING_DATA_MONGODB_USERNAME: $MONGO_DB_USERNAME
+       SPRING_DATA_MONGODB_PASSWORD: $MONGO_DB_PASSWORD
+       SPRING_DATA_MONGODB_DATABASE: $MONGO_DB
+    restart: always
+    depends_on:
+      - $MONGO_CONTAINER_NAME
+
+  mongo-db:
+    image: $MONGO_IMAGE
+    container_name: $MONGO_CONTAINER_NAME
+    restart: always
+    ports:
+      - $MONGO_HOST_PORT:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: $MONGO_ROOT_USERNAME
+      MONGO_INITDB_ROOT_PASSWORD: $MONGO_ROOT_PASSWORD
+      MONGO_INITDB_DATABASE: $MONGO_DB_AUTHENTICATION_DATABASE
+    volumes:
+      - ./../mongodb-vol:/data/db
+      - ./mongo-init/init-db.js:/docker-entrypoint-initdb.d/init-db.js:ro
+    healthcheck:
+      test: "echo 'db.runCommand(\"ping\").ok'"
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  mongodb-vol:
